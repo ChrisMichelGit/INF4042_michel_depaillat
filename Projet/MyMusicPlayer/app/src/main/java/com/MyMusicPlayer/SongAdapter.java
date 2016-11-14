@@ -1,6 +1,6 @@
-package com.example.jul.mymusicplayer;
+package com.MyMusicPlayer;
 
-import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,15 +12,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 
-class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> implements FastScrollRecyclerView.SectionedAdapter {
 
     ////////////////
     // Attributes //
     ////////////////
 
-    private ArrayList<Song> songs;  // The song list
-    private int itemLayout;         // The resource id of item Layout
-    private static RecyclerViewClickListener itemListener;
+    private ArrayList<Song> songs;                          // The song list
+    private int itemLayout;                                 // The resource id of item Layout
+    private static RecyclerViewClickListener itemListener;  // The click listener of the recycle view
 
 
     //////////////////
@@ -37,6 +37,8 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     ////////////////////////
     // Overridden Methods //
     ////////////////////////
+
+    // View Holder methods //
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -79,6 +81,14 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         return songs.size();
     }
 
+    // FastScrollRecyclerView.SectionedAdapter methods //
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        return "" + songs.get(position).getTitle().charAt(0);
+    }
+
 
     /////////////
     // Methods //
@@ -90,7 +100,7 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     // Other class //
     /////////////////
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView albumArt;
         TextView songName;
@@ -113,7 +123,6 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         @Override
         public void onClick(View v)
         {
-            Log.d ("SongAdapter", "MABBBB");
             itemListener.recyclerViewListClicked(v, this.getLayoutPosition());
         }
     }

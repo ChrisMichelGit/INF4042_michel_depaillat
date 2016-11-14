@@ -1,4 +1,4 @@
-package com.example.jul.mymusicplayer;
+package com.MyMusicPlayer;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

@@ -1,10 +1,10 @@
-package com.example.jul.mymusicplayer;
+package com.MyMusicPlayer;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class MusicPlayer extends Service {
+class MusicPlayer extends Service {
     public MusicPlayer() {
     }
 

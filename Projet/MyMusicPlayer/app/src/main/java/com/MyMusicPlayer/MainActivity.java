@@ -1,4 +1,4 @@
-package com.example.jul.mymusicplayer;
+package com.MyMusicPlayer;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -23,25 +24,28 @@ import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 import android.util.Log;
 
+
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class MainActivity extends Activity implements RecyclerViewClickListener {
+class MainActivity extends Activity implements RecyclerViewClickListener {
 
     ////////////////
     // Attributes //
     ////////////////
 
     private ArrayList<Song> songList;                                                   // The list containing all the song of the user
-    private RecyclerView songView;                                                      // The view displaying the song list
+    private FastScrollRecyclerView songView;                                            // The view displaying the song list
     private Song currPlaying;                                                           // The actual played song
+    private MediaPlayer mp = new MediaPlayer();                                         // The media that play the song
+
     private String [] permissionsList = {Manifest.permission.READ_EXTERNAL_STORAGE};    // The list of needed permissions
     private static final int PERMISSIONS_READ_EXTERNAL_STORAGE = 1;                     // The request code of READ_EXTERNAL_STORAGE permission
+
     private LruCache<String, Bitmap> mMemoryCache;                                      // The cache containing all album cover
-    private MediaPlayer mp = new MediaPlayer();
+
 
     ////////////////////////
     // Overridden Methods //
@@ -49,6 +53,7 @@ public class MainActivity extends Activity implements RecyclerViewClickListener 
 
     // Main methods //
 
+    @TargetApi(Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +61,16 @@ public class MainActivity extends Activity implements RecyclerViewClickListener 
 
         RetainFragment retainFragment = RetainFragment.findOrCreateRetainFragment(getFragmentManager());
 
-        songView = (RecyclerView) findViewById(R.id.song_list);
+        songView = (FastScrollRecyclerView) findViewById(R.id.song_list);
+        songView.getFastScroller().getPopup().setAlpha(0);
+        //songView.setAutoHideDelay(1000);
+        songView.setPopupBgColor(getColor(R.color.grey));
+        songView.setPopupTextColor(getColor(R.color.white));
+        songView.setPopUpTypeface(Typeface.SANS_SERIF);
+        songView.setPopupTextSize(100);
+        songView.setTrackColor(getColor(R.color.alpha_grey));
+        songView.setThumbColor(getColor(R.color.grey));
+
         songList = new ArrayList<>();
 
         // Check the android version and ask permission in Run-Time mode if it's 6.0 or higher
@@ -152,6 +166,7 @@ public class MainActivity extends Activity implements RecyclerViewClickListener 
         PlaySong(position);
     }
 
+
     /////////////
     // Methods //
     /////////////
@@ -215,6 +230,7 @@ public class MainActivity extends Activity implements RecyclerViewClickListener 
             mp.pause();
         }
     }
+
 
     /////////////
     // Getters //

@@ -1,4 +1,4 @@
-package com.example.jul.mymusicplayer;
+package com.MyMusicPlayer;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

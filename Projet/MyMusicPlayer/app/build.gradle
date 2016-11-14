@@ -4,7 +4,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "25.0.0"
     defaultConfig {
-        applicationId "com.example.jul.mymusicplayer"
+        applicationId "com.MyMusicPlayer"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1

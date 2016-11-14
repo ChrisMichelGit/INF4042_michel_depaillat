@@ -7,7 +7,7 @@
     android:background="#FF330000"
     tools:context=".MainActivity" >
 
-    <android.support.v7.widget.RecyclerView
+    <com.MyMusicPlayer.FastScrollRecyclerView
         android:id="@+id/song_list"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
