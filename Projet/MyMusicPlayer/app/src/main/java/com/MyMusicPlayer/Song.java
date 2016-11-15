@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
-class Song extends Thread implements Parcelable {
+class Song implements Parcelable {
 
     ////////////////
     // Attributes //
@@ -51,19 +51,6 @@ class Song extends Thread implements Parcelable {
     ////////////////////////
     // Overridden Methods //
     ////////////////////////
-
-    // Thread methods //
-
-    @Override
-    public void run() {
-
-        // Create the bitmap
-        albumArt = MusicUtils.getArtwork (activity.getApplicationContext(), songId, albumId);
-        albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
-
-        // Add the album cover to the cache
-        activity.addBitmapToMemoryCache(title + albumId, albumArt);
-    }
 
     // Parcelable methods //
 
@@ -111,9 +98,22 @@ class Song extends Thread implements Parcelable {
         activity = p_activity;
     }
 
+    void initBitmap ()
+    {
+        // Create the bitmap
+        albumArt = MusicUtils.getArtwork (activity.getApplicationContext(), songId, albumId);
+        albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
+
+        // Add the album cover to the cache
+        activity.addBitmapToMemoryCache(title + albumId, albumArt);
+    }
+
     void setBitmap (Bitmap p_albumArt)
     {
         albumArt = p_albumArt;
+
+        // Add the album cover to the cache
+        activity.addBitmapToMemoryCache(title + albumId, albumArt);
     }
 
     /////////////

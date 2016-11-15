@@ -45,6 +45,10 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
     private static final int PERMISSIONS_READ_EXTERNAL_STORAGE = 1;                     // The request code of READ_EXTERNAL_STORAGE permission
 
     private LruCache<String, Bitmap> mMemoryCache;                                      // The cache containing all album cover
+    private int coverByThread = 200;                                                    // The number of all album cover a thread should searching for (recommended to set here)
+    private int numThread;                                                              // The number of thread necessary to load all album cover (do not set it here, it will be overridden)
+    private int lastThread;                                                             // The number of album covers the last thread should searching for (do not set it here, it will be overridden)
+    private int currThreadId;                                                           // The ID of the current thread
 
 
     ////////////////////////
@@ -61,9 +65,10 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
 
         RetainFragment retainFragment = RetainFragment.findOrCreateRetainFragment(getFragmentManager());
 
+        // Set the recycler view and its properties
         songView = (FastScrollRecyclerView) findViewById(R.id.song_list);
         songView.getFastScroller().getPopup().setAlpha(0);
-        //songView.setAutoHideDelay(1000);
+        songView.setAutoHideDelay(1000);
         songView.setPopupBgColor(getColor(R.color.grey));
         songView.setPopupTextColor(getColor(R.color.white));
         songView.setPopUpTypeface(Typeface.SANS_SERIF);
@@ -80,34 +85,24 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
 
         // Check if the song list has been already created
         // If yes it will save a lot of time and resources when rotate screen
-        if(savedInstanceState == null || !savedInstanceState.containsKey("songList")) {
+        if(savedInstanceState == null || !savedInstanceState.containsKey("songList")) { // Saved instance found
 
             if (ActivityCompat.checkSelfPermission(MainActivity.this, permissionsList[0]) == PackageManager.PERMISSION_GRANTED) {
                 getSongList();
             }
-
 
             // Get max available VM memory, exceeding this amount will throw an OutOfMemory exception. Stored in kilobytes as LruCache takes an int in its constructor.
             final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
             mMemoryCache = new LruCache<>(maxMemory);
 
-            // Launch all the song thread in order to set the album art
-            // Use a thread to launch others got the advantage to not block the display of loaded song
-            new Thread() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < songList.size(); i++) {
-                        songList.get(i).start();
-                    }
-                }
-            }.start();
+            // Get all the album cover (more songs, longer it takes)
+            getAllAlbumCover();
 
             // Set the cache
             retainFragment.mRetainedCache = mMemoryCache;
         }
-        else
-        {
+        else { // No saved instance found
             mMemoryCache = retainFragment.mRetainedCache;
             songList = savedInstanceState.getParcelableArrayList("songList");
             if (songList != null) {
@@ -120,6 +115,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
             }
         }
 
+        // Set the adapter for the view
         SongAdapter songAdt = new SongAdapter(songList, R.layout.song, this);
         songView.setAdapter(songAdt);
 
@@ -143,14 +139,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d("MainActivity", "Permission has been granted");
                 getSongList();
-                new Thread() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < songList.size(); i++) {
-                            songList.get(i).start();
-                        }
-                    }
-                }.start();
+                getAllAlbumCover();
                 songView.getAdapter().notifyDataSetChanged();
             } else {
                 Log.d("MainActivity", "Permission has been denied or request cancelled");
@@ -280,6 +269,44 @@ class MainActivity extends Activity implements RecyclerViewClickListener {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
+    }
+
+    // Get all the album cover (more songs, longer it takes)
+    void getAllAlbumCover ()
+    {
+        // We determine the number of threads by the number total of songs divided by the number of album covers that a thread should searching for
+        numThread = songList.size()/coverByThread;
+
+        // If the rest is not 0 we need another thread to complete the missing album cover
+        lastThread = songList.size() % coverByThread;
+
+        // All the thread except the last one
+        for (currThreadId = 0; currThreadId < numThread; currThreadId++) {
+
+            // Use a thread got the advantage to not block the display of loaded song
+            new Thread() {
+
+                int threadId = currThreadId;
+                @Override
+                public void run() {
+                    for (int i = numThread * threadId * 50; i < numThread * threadId * 50 + coverByThread; i++) {
+                        Log.i("MAIN", "Thread n°" + threadId + " id: " + i);
+                        songList.get(i).initBitmap();
+                    }
+                }
+            }.start();
+        }
+
+        // The last thread
+        new Thread() {
+            @Override
+            public void run() {
+                for (int i = numThread * currThreadId * 50; i < numThread * currThreadId * 50 + lastThread; i++) {
+                    Log.i("MAIN", "Thread n°" + currThreadId + " id: " + i);
+                    songList.get(i).initBitmap();
+                }
+            }
+        }.start();
     }
 
 
