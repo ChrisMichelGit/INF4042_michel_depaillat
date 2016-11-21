@@ -5,7 +5,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
-class Song implements Parcelable {
+class Song implements Parcelable
+{
 
     ////////////////
     // Attributes //
@@ -26,7 +27,8 @@ class Song implements Parcelable {
     // Constructors //
     //////////////////
 
-    Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, int p_duration, MainActivity p_activity) {
+    Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, int p_duration, MainActivity p_activity)
+    {
         artist = p_artist;
         album = p_album;
         title = p_title;
@@ -38,7 +40,8 @@ class Song implements Parcelable {
         activity = p_activity;
     }
 
-    private Song (Parcel parcel) {
+    private Song(Parcel parcel)
+    {
         artist = parcel.readString();
         album = parcel.readString();
         title = parcel.readString();
@@ -55,12 +58,14 @@ class Song implements Parcelable {
     // Parcelable methods //
 
     @Override
-    public int describeContents() {
+    public int describeContents()
+    {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public void writeToParcel(Parcel parcel, int i)
+    {
 
         // Memorize every info
         parcel.writeString(artist);
@@ -77,13 +82,16 @@ class Song implements Parcelable {
     /////////////
 
     // Construct a Song from a parcelable
-    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
-        public Song createFromParcel(Parcel in) {
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>()
+    {
+        public Song createFromParcel(Parcel in)
+        {
             return new Song(in);
         }
 
         @Override
-        public Song[] newArray(int i) {
+        public Song[] newArray(int i)
+        {
             return new Song[0];
         }
     };
@@ -93,22 +101,22 @@ class Song implements Parcelable {
     // Setters //
     /////////////
 
-    void setActivity (MainActivity p_activity)
+    void setActivity(MainActivity p_activity)
     {
         activity = p_activity;
     }
 
-    void initBitmap ()
+    void initBitmap()
     {
         // Create the bitmap
-        albumArt = MusicUtils.getArtwork (activity.getApplicationContext(), songId, albumId);
+        albumArt = MusicUtils.getArtwork(activity.getApplicationContext(), songId, albumId);
         albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
 
         // Add the album cover to the cache
         activity.addBitmapToMemoryCache(title + albumId, albumArt);
     }
 
-    void setBitmap (Bitmap p_albumArt)
+    void setBitmap(Bitmap p_albumArt)
     {
         albumArt = p_albumArt;
 
@@ -116,31 +124,63 @@ class Song implements Parcelable {
         activity.addBitmapToMemoryCache(title + albumId, albumArt);
     }
 
+
     /////////////
     // Getters //
     /////////////
 
-    String getArtist(){return artist;}
-    String getAlbum(){return album;}
-    String getTitle(){return title;}
-    String getData(){return data;}
-    long getAlbumID(){return albumId;}
-    long getSongId(){return songId;}
-    public int getDuration(){return duration;}
-    Bitmap getBitmap(){return  albumArt;}
+    String getArtist()
+    {
+        return artist;
+    }
+
+    String getAlbum()
+    {
+        return album;
+    }
+
+    String getTitle()
+    {
+        return title;
+    }
+
+    String getData()
+    {
+        return data;
+    }
+
+    long getAlbumID()
+    {
+        return albumId;
+    }
+
+    long getSongId()
+    {
+        return songId;
+    }
+
+    public int getDuration()
+    {
+        return duration;
+    }
+
+    Bitmap getBitmap()
+    {
+        return albumArt;
+    }
 
     // Convert duration into a string: hour, min, sec
-    String getDurationToString ()
+    String getDurationToString()
     {
         String convertedDuration = "";
 
         int hours = 0, mins = 0, secs = 0;
 
         secs = duration / 1000;
-        mins  = secs / 60;
+        mins = secs / 60;
         secs = secs - (mins * 60);
         hours = mins / 60;
-        mins  = mins - (hours * 60);
+        mins = mins - (hours * 60);
 
         if (hours > 0)
         {
@@ -157,5 +197,4 @@ class Song implements Parcelable {
 
         return convertedDuration;
     }
-
 }

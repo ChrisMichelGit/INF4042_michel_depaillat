@@ -1,6 +1,7 @@
 package com.MyMusicPlayer;
 
-interface OnFastScrollStateChangeListener {
+interface OnFastScrollStateChangeListener
+{
 
     // Called when fast scrolling begins
     void onFastScrollStart();

@@ -20,7 +20,8 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 
-class FastScroller {
+class FastScroller
+{
 
     ////////////////
     // Attributes //
@@ -62,7 +63,8 @@ class FastScroller {
     // Constructors //
     //////////////////
 
-    FastScroller(Context context, FastScrollRecyclerView recyclerView, AttributeSet attrs) {
+    FastScroller(Context context, FastScrollRecyclerView recyclerView, AttributeSet attrs)
+    {
 
         Resources resources = context.getResources();
 
@@ -81,7 +83,8 @@ class FastScroller {
         // Get all attributes from attrs.xml
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.FastScrollRecyclerView, 0, 0);
 
-        try {
+        try
+        {
             mAutoHideEnabled = typedArray.getBoolean(R.styleable.FastScrollRecyclerView_fastScrollAutoHide, true);
             mAutoHideDelay = typedArray.getInteger(R.styleable.FastScrollRecyclerView_fastScrollAutoHideDelay, DEFAULT_AUTO_HIDE_DELAY);
 
@@ -99,15 +102,21 @@ class FastScroller {
             mPopup.setTextColor(popupTextColor);
             mPopup.setTextSize(popupTextSize);
             mPopup.setBackgroundSize(popupBackgroundSize);
-        } finally {
+        }
+        finally
+        {
             typedArray.recycle();
         }
 
-        mHideRunnable = new Runnable() {
+        mHideRunnable = new Runnable()
+        {
             @Override
-            public void run() {
-                if (!mIsDragging) {
-                    if (mAutoHideAnimator != null) {
+            public void run()
+            {
+                if (!mIsDragging)
+                {
+                    if (mAutoHideAnimator != null)
+                    {
                         mAutoHideAnimator.cancel();
                     }
                     mAutoHideAnimator = ObjectAnimator.ofInt(FastScroller.this, "offsetX", (Utils.isRtl(mRecyclerView.getResources()) ? -1 : 1) * mWidth);
@@ -118,15 +127,18 @@ class FastScroller {
             }
         };
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
                 super.onScrolled(recyclerView, dx, dy);
                 show();
             }
         });
 
-        if (mAutoHideEnabled) {
+        if (mAutoHideEnabled)
+        {
             postAutoHideDelayed();
         }
     }
@@ -137,31 +149,37 @@ class FastScroller {
     /////////////
 
     // Handles the touch event and determines whether to show the fast scroller (or updates it if it is already showing).
-    void handleTouchEvent(MotionEvent ev, int downX, int downY, int lastY, OnFastScrollStateChangeListener stateChangeListener) {
+    void handleTouchEvent(MotionEvent ev, int downX, int downY, int lastY, OnFastScrollStateChangeListener stateChangeListener)
+    {
 
         ViewConfiguration config = ViewConfiguration.get(mRecyclerView.getContext());
 
         int action = ev.getAction();
         int y = (int) ev.getY();
-        switch (action) {
+        switch (action)
+        {
             case MotionEvent.ACTION_DOWN:
-                if (isNearPoint(downX, downY)) {
+                if (isNearPoint(downX, downY))
+                {
                     mTouchOffset = downY - mThumbPosition.y;
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 // Check if we should start scrolling
-                if (!mIsDragging && isNearPoint(downX, downY) && Math.abs(y - downY) > config.getScaledTouchSlop()) {
+                if (!mIsDragging && isNearPoint(downX, downY) && Math.abs(y - downY) > config.getScaledTouchSlop())
+                {
                     mRecyclerView.getParent().requestDisallowInterceptTouchEvent(true);
                     mIsDragging = true;
                     mTouchOffset += (lastY - downY);
                     mPopup.animateVisibility(true);
-                    if (stateChangeListener != null) {
+                    if (stateChangeListener != null)
+                    {
                         stateChangeListener.onFastScrollStart();
                     }
                 }
-                if (mIsDragging) {
+                if (mIsDragging)
+                {
                     // Update the fast scroller section name at this touch position
                     int top = 0;
                     int bottom = mRecyclerView.getHeight() - mThumbHeight;
@@ -175,10 +193,12 @@ class FastScroller {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mTouchOffset = 0;
-                if (mIsDragging) {
+                if (mIsDragging)
+                {
                     mIsDragging = false;
                     mPopup.animateVisibility(false);
-                    if (stateChangeListener != null) {
+                    if (stateChangeListener != null)
+                    {
                         stateChangeListener.onFastScrollStop();
                     }
                 }
@@ -188,9 +208,11 @@ class FastScroller {
     }
 
     // Draw the scrollbar
-    void draw(Canvas canvas) {
+    void draw(Canvas canvas)
+    {
 
-        if (mThumbPosition.x < 0 || mThumbPosition.y < 0) {
+        if (mThumbPosition.x < 0 || mThumbPosition.y < 0)
+        {
             return;
         }
 
@@ -205,30 +227,37 @@ class FastScroller {
     }
 
     // Returns whether the specified points are near the scroll bar bounds.
-    private boolean isNearPoint(int x, int y) {
+    private boolean isNearPoint(int x, int y)
+    {
         mTmpRect.set(mThumbPosition.x, mThumbPosition.y, mThumbPosition.x + mWidth, mThumbPosition.y + mThumbHeight);
         mTmpRect.inset(mTouchInset, mTouchInset);
         return mTmpRect.contains(x, y);
     }
 
     // Show the scrollbar
-    private void show() {
-        if (!mAnimatingShow) {
-            if (mAutoHideAnimator != null) {
+    private void show()
+    {
+        if (!mAnimatingShow)
+        {
+            if (mAutoHideAnimator != null)
+            {
                 mAutoHideAnimator.cancel();
             }
             mAutoHideAnimator = ObjectAnimator.ofInt(this, "offsetX", 0);
             mAutoHideAnimator.setInterpolator(new LinearOutSlowInInterpolator());
             mAutoHideAnimator.setDuration(150);
-            mAutoHideAnimator.addListener(new AnimatorListenerAdapter() {
+            mAutoHideAnimator.addListener(new AnimatorListenerAdapter()
+            {
                 @Override
-                public void onAnimationCancel(Animator animation) {
+                public void onAnimationCancel(Animator animation)
+                {
                     super.onAnimationCancel(animation);
                     mAnimatingShow = false;
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(Animator animation)
+                {
                     super.onAnimationEnd(animation);
                     mAnimatingShow = false;
                 }
@@ -236,24 +265,31 @@ class FastScroller {
             mAnimatingShow = true;
             mAutoHideAnimator.start();
         }
-        if (mAutoHideEnabled) {
+        if (mAutoHideEnabled)
+        {
             postAutoHideDelayed();
-        } else {
+        }
+        else
+        {
             cancelAutoHide();
         }
     }
 
     // Tell that the auto hide has been delayed
-    private void postAutoHideDelayed() {
-        if (mRecyclerView != null) {
+    private void postAutoHideDelayed()
+    {
+        if (mRecyclerView != null)
+        {
             cancelAutoHide();
             mRecyclerView.postDelayed(mHideRunnable, mAutoHideDelay);
         }
     }
 
     // Cancel scrollbar auto hide
-    private void cancelAutoHide() {
-        if (mRecyclerView != null) {
+    private void cancelAutoHide()
+    {
+        if (mRecyclerView != null)
+        {
             mRecyclerView.removeCallbacks(mHideRunnable);
         }
     }
@@ -263,8 +299,10 @@ class FastScroller {
     // Setters //
     /////////////
 
-    void setThumbPosition(int x, int y) {
-        if (mThumbPosition.x == x && mThumbPosition.y == y) {
+    void setThumbPosition(int x, int y)
+    {
+        if (mThumbPosition.x == x && mThumbPosition.y == y)
+        {
             return;
         }
         // do not create new objects here, this is called quite often
@@ -275,44 +313,56 @@ class FastScroller {
         mRecyclerView.invalidate(mInvalidateRect);
     }
 
-    void setThumbColor(@ColorInt int color) {
+    void setThumbColor(@ColorInt int color)
+    {
         mThumb.setColor(color);
         mRecyclerView.invalidate(mInvalidateRect);
     }
 
-    void setTrackColor(@ColorInt int color) {
+    void setTrackColor(@ColorInt int color)
+    {
         mTrack.setColor(color);
         mRecyclerView.invalidate(mInvalidateRect);
     }
 
-    void setPopupBgColor(@ColorInt int color) {
+    void setPopupBgColor(@ColorInt int color)
+    {
         mPopup.setBgColor(color);
     }
 
-    void setPopupTextColor(@ColorInt int color) {
+    void setPopupTextColor(@ColorInt int color)
+    {
         mPopup.setTextColor(color);
     }
 
-    void setPopupTypeface(Typeface typeface) {
+    void setPopupTypeface(Typeface typeface)
+    {
         mPopup.setTypeface(typeface);
     }
 
-    void setPopupTextSize(int size) {
+    void setPopupTextSize(int size)
+    {
         mPopup.setTextSize(size);
     }
 
-    void setAutoHideDelay(int hideDelay) {
+    void setAutoHideDelay(int hideDelay)
+    {
         mAutoHideDelay = hideDelay;
-        if (mAutoHideEnabled) {
+        if (mAutoHideEnabled)
+        {
             postAutoHideDelayed();
         }
     }
 
-    void setAutoHideEnabled(boolean autoHideEnabled) {
+    void setAutoHideEnabled(boolean autoHideEnabled)
+    {
         mAutoHideEnabled = autoHideEnabled;
-        if (autoHideEnabled) {
+        if (autoHideEnabled)
+        {
             postAutoHideDelayed();
-        } else {
+        }
+        else
+        {
             cancelAutoHide();
         }
     }
@@ -322,14 +372,23 @@ class FastScroller {
     // Getters //
     /////////////
 
-    boolean isDragging() {
+    boolean isDragging()
+    {
         return mIsDragging;
     }
-    int getThumbHeight() {
+
+    int getThumbHeight()
+    {
         return mThumbHeight;
     }
-    int getWidth() {
+
+    int getWidth()
+    {
         return mWidth;
     }
-    FastScrollPopup getPopup() { return mPopup; }
+
+    FastScrollPopup getPopup()
+    {
+        return mPopup;
+    }
 }

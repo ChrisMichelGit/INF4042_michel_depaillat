@@ -7,7 +7,8 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
-class Utils {
+class Utils
+{
 
     /**
      * Converts dp to px
@@ -16,7 +17,8 @@ class Utils {
      * @param dp  the value in dp
      * @return int
      */
-    static int toPixels(Resources res, float dp) {
+    static int toPixels(Resources res, float dp)
+    {
         return (int) (dp * res.getDisplayMetrics().density);
     }
 
@@ -27,12 +29,14 @@ class Utils {
      * @param sp  the value in sp
      * @return int
      */
-    static int toScreenPixels(Resources res, float sp) {
+    static int toScreenPixels(Resources res, float sp)
+    {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, res.getDisplayMetrics());
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    static boolean isRtl(Resources res) {
+    static boolean isRtl(Resources res)
+    {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) &&
                 (res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
     }

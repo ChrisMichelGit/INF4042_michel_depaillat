@@ -3,4 +3,10 @@
     <string name="album_cover">Album Cover</string>
     <string name="end">End</string>
     <string name="shuffle">Shuffle</string>
+    <string name="play_pause">play_pause</string>
+    <string name="previous">previous</string>
+    <string name="next">next</string>
+    <string name="fast_forward">fast_forward</string>
+    <string name="rewind">rewind</string>
+    <string name="separator">separator</string>
 </resources>

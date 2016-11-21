@@ -3,7 +3,8 @@ package com.MyMusicPlayer;
 
 import android.view.View;
 
-interface RecyclerViewClickListener {
+interface RecyclerViewClickListener
+{
 
     void recyclerViewListClicked(View v, int position);
 }
