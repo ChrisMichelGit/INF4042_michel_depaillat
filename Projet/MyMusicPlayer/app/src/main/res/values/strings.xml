@@ -9,4 +9,8 @@
     <string name="fast_forward">fast_forward</string>
     <string name="rewind">rewind</string>
     <string name="separator">separator</string>
+    <string name="edit">Edit</string>
+    <string name="properties">Properties</string>
+    <string name="add_to_playlist">Add to a playlist</string>
+    <string name="songs">Songs</string>
 </resources>

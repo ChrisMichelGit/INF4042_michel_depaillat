@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme"
         android:allowBackup="false"
         >
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activity.MainActivity">
             android:launchMode="singleTop"
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MusicPlayerService"
+        <service android:name=".MusicService.MusicPlayerService"
                  android:stopWithTask="false"/>
 
     </application>

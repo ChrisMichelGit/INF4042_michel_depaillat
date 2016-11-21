@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.RecyclerViewFastScroll;
 
 
 import android.content.Context;
@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-class FastScrollRecyclerView extends RecyclerView implements RecyclerView.OnItemTouchListener
+public class FastScrollRecyclerView extends RecyclerView implements RecyclerView.OnItemTouchListener
 {
 
     ////////////////
@@ -352,7 +352,7 @@ class FastScrollRecyclerView extends RecyclerView implements RecyclerView.OnItem
         stateOut.rowHeight = child.getHeight();
     }
 
-    FastScroller getFastScroller()
+    public FastScroller getFastScroller()
     {
         return mScrollbar;
     }

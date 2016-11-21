@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.MusicService;
 
 
 enum PlaybackStatus

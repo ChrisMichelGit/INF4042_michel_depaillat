@@ -75,11 +75,12 @@
 
     <Button
         android:layout_gravity="center_vertical"
+        android:onClick="openPopUpMenu"
         android:layout_marginRight="25dp"
         android:layout_marginEnd="25dp"
         android:id="@+id/play_button"
-        android:layout_height="20dp"
-        android:layout_width="20dp"
-        android:background="@drawable/play" />
+        android:layout_height="30dp"
+        android:layout_width="10dp"
+        android:background="@drawable/btn_popup" />
 
 </LinearLayout>

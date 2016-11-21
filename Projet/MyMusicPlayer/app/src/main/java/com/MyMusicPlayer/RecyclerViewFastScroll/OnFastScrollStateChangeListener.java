@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.RecyclerViewFastScroll;
 
 interface OnFastScrollStateChangeListener
 {

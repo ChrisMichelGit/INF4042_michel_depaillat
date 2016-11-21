@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.RecyclerViewFastScroll;
 
 import android.animation.ObjectAnimator;
 import android.content.res.Resources;
@@ -11,7 +11,7 @@ import android.graphics.Typeface;
 import android.text.TextUtils;
 
 
-class FastScrollPopup
+public class FastScrollPopup
 {
 
     ////////////////
@@ -171,7 +171,7 @@ class FastScrollPopup
 
 
     // Set the popup alpha for animations
-    void setAlpha(float alpha)
+    public void setAlpha(float alpha)
     {
         mAlpha = alpha;
         mRecyclerView.invalidate(mBgBounds);

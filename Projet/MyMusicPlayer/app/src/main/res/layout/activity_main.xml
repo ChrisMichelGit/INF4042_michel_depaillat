@@ -5,9 +5,9 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="#FF330000"
-    tools:context=".MainActivity" >
+    tools:context=".Activity.MainActivity" >
 
-    <com.MyMusicPlayer.FastScrollRecyclerView
+    <com.MyMusicPlayer.RecyclerViewFastScroll.FastScrollRecyclerView
         android:id="@+id/song_list"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"

@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.Song;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -9,13 +9,15 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 
+import com.MyMusicPlayer.R;
+
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 
-class MusicUtils
+public class MusicUtils
 {
 
     ////////////////
@@ -43,7 +45,7 @@ class MusicUtils
         sBitmapOptions.inDither = false;
     }
 
-    static void setDefaultBM(Context context)
+    public static void setDefaultBM(Context context)
     {
         defaultBM = BitmapFactory.decodeResource(context.getResources(), R.drawable.albumart_mp_unknown);
         defaultBM = Bitmap.createScaledBitmap(defaultBM, 200, 200, true);
@@ -145,7 +147,7 @@ class MusicUtils
 
         if (albumId < 0 && songId < 0)
         {
-            throw new IllegalArgumentException("Must specify an album or a song id");
+            throw new IllegalArgumentException("Must specify an album or a song_tab id");
         }
 
         try

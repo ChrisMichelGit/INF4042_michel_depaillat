@@ -1,21 +1,23 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.Activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.util.LruCache;
 import android.os.Bundle;
@@ -23,27 +25,37 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import android.net.Uri;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.support.v7.widget.LinearLayoutManager;
+
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.util.Log;
+import android.widget.Toast;
+import android.widget.Toolbar;
+
+import com.MyMusicPlayer.MusicService.MusicPlayerService;
+import com.MyMusicPlayer.MusicService.ServiceCallbacks;
+import com.MyMusicPlayer.PageAdapter;
+import com.MyMusicPlayer.Song.MusicUtils;
+import com.MyMusicPlayer.R;
+import com.MyMusicPlayer.RecyclerViewFastScroll.RecyclerViewClickListener;
+import com.MyMusicPlayer.Song.Song;
 
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-class MainActivity extends Activity implements RecyclerViewClickListener, ServiceCallbacks
+public class MainActivity extends AppCompatActivity implements RecyclerViewClickListener, ServiceCallbacks
 {
 
     ////////////////
     // Attributes //
     ////////////////
 
-    private String TAG = "MainActivity";                                                  // The log tag
+    private String TAG = "MainActivity";                                                // The log tag
 
-    private ArrayList<Song> songList;                                                   // The list containing all the song of the user
-    private FastScrollRecyclerView songView;                                            // The view displaying the song list
-    private int currSongPlayingID = -1;                                                 // The ID of the actual played song
+    private ArrayList<Song> songList;                                                   // The list containing all the song_tab of the user
+    private int currSongPlayingID = -1;                                                 // The ID of the actual played song_tab
     private MusicPlayerService player;                                                  // The music service that manages every actions on audio
     boolean serviceBound = false;                                                       // To know if the above service is active or not
 
@@ -64,6 +76,8 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
         @Override
         public void onServiceConnected(ComponentName name, IBinder service)
         {
+            Log.d(TAG, "Service Connected");
+
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             player = binder.getService();
@@ -79,6 +93,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
         @Override
         public void onServiceDisconnected(ComponentName name)
         {
+            Log.d(TAG, "Service Disconnected");
         }
     };
 
@@ -93,20 +108,8 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        RetainFragment retainFragment = RetainFragment.findOrCreateRetainFragment(getFragmentManager());
-
-        // Set the recycler view and its properties
-        songView = (FastScrollRecyclerView) findViewById(R.id.song_list);
-        songView.getFastScroller().getPopup().setAlpha(0);
-        songView.setAutoHideDelay(1000);
-        songView.setPopupBgColor(getColor(R.color.grey));
-        songView.setPopupTextColor(getColor(R.color.white));
-        songView.setPopUpTypeface(Typeface.SANS_SERIF);
-        songView.setPopupTextSize(100);
-        songView.setTrackColor(getColor(R.color.alpha_grey));
-        songView.setThumbColor(getColor(R.color.grey));
+        RetainFragment retainFragment = RetainFragment.findOrCreateRetainFragment(getSupportFragmentManager());
 
         songList = new ArrayList<>();
 
@@ -116,17 +119,14 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
 
         MusicUtils.setDefaultBM(this.getApplicationContext());
 
-        //Intent playerIntent = new Intent(this, MusicPlayerService.class);
-        //if (!serviceBound) bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-
-        // Check if the song list has been already created
+        // Check if the song_tab list has been already created
         // If yes it will save a lot of time and resources when rotate screen
         if (savedInstanceState == null || !savedInstanceState.containsKey("songList"))
         { // No saved instance found
 
             if (ActivityCompat.checkSelfPermission(MainActivity.this, permissionsList[0]) == PackageManager.PERMISSION_GRANTED)
             {
-                getSongList();
+                getAllSong();
             }
 
             // Get max available VM memory, exceeding this amount will throw an OutOfMemory exception. Stored in kilobytes as LruCache takes an int in its constructor.
@@ -139,14 +139,10 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
 
             // Set the cache
             retainFragment.mRetainedCache = mMemoryCache;
-
-            // Start the music service
-            //startService(playerIntent);
         }
         else
         { // Saved instance found
             mMemoryCache = retainFragment.mRetainedCache;
-            //currSongPlayingID = retainFragment.currSongPlayingID;
             songList = savedInstanceState.getParcelableArrayList("songList");
             if (songList != null)
             {
@@ -159,14 +155,40 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
             }
         }
 
-        // Set the adapter for the view
-        SongAdapter songAdt = new SongAdapter(songList, R.layout.song, this);
-        songView.setAdapter(songAdt);
+        setContentView(R.layout.tab_layout);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setActionBar(toolbar);
 
-        LinearLayoutManager lm = new LinearLayoutManager(this);
-        songView.setLayoutManager(lm);
-        songView.scrollToPosition(lm.findFirstCompletelyVisibleItemPosition());
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
 
+
+        assert tabLayout != null;
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.songs));
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), tabLayout.getTabCount());
+
+        assert viewPager != null;
+        viewPager.setAdapter(adapter);
+
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     @Override
@@ -207,9 +229,8 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
                 Log.d(TAG, "Permission has been granted");
-                getSongList();
+                getAllSong();
                 getAllAlbumCover();
-                songView.getAdapter().notifyDataSetChanged();
             }
             else
             {
@@ -301,7 +322,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
 
     public void playSong(int position)
     {
-        Log.d(TAG, "Play song");
+        Log.d(TAG, "Play song_tab");
         Song song = songList.get(position);
 
         //Check is service is active
@@ -314,7 +335,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
             bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
         else
-        { // Service is active, play a new song
+        { // Service is active, play a new song_tab
             if (position != currSongPlayingID)
             {
                 Log.d(TAG, "PlayNewSong");
@@ -325,12 +346,30 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
         currSongPlayingID = position;
     }
 
+    public void openPopUpMenu (View v)
+    {
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(MainActivity.this, v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(MainActivity.this,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
+    }
+
 
     /////////////
     // Getters //
     /////////////
 
-    // Get the first the song played
+    // Get the first the song_tab played
     public static Song getCurrentSongPlaying ()
     {
         return firstSong;
@@ -344,7 +383,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
     }
 
     // Get all the songs that the user has
-    public void getSongList()
+    public void getAllSong()
     {
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -366,7 +405,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
 
                 Song song = new Song(artist, album, title, data, albumId, songId, duration, this);
 
-                // Store the song
+                // Store the song_tab
                 songList.add(song);
 
 
@@ -397,7 +436,7 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
         for (currThreadId = 0; currThreadId < numThread; currThreadId++)
         {
 
-            // Use a thread got the advantage to not block the display of loaded song
+            // Use a thread got the advantage to not block the display of loaded song_tab
             new Thread()
             {
 
@@ -430,6 +469,10 @@ class MainActivity extends Activity implements RecyclerViewClickListener, Servic
         }.start();
     }
 
+    public ArrayList<Song> getSongList()
+    {
+        return songList;
+    }
 
     /////////////////
     // Other class //

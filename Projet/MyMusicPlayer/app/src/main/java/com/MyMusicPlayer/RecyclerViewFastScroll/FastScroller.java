@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.RecyclerViewFastScroll;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -19,8 +19,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import com.MyMusicPlayer.R;
 
-class FastScroller
+
+public class FastScroller
 {
 
     ////////////////
@@ -387,7 +389,7 @@ class FastScroller
         return mWidth;
     }
 
-    FastScrollPopup getPopup()
+    public FastScrollPopup getPopup()
     {
         return mPopup;
     }

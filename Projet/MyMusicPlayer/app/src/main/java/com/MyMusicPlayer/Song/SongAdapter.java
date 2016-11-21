@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.Song;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,17 +9,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.MyMusicPlayer.R;
+import com.MyMusicPlayer.RecyclerViewFastScroll.RecyclerViewClickListener;
+import com.MyMusicPlayer.RecyclerViewFastScroll.FastScrollRecyclerView;
+
 import java.util.ArrayList;
 
 
-class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> implements FastScrollRecyclerView.SectionedAdapter
+public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> implements FastScrollRecyclerView.SectionedAdapter
 {
 
     ////////////////
     // Attributes //
     ////////////////
 
-    private ArrayList<Song> songs;                          // The song list
+    private ArrayList<Song> songs;                          // The song_tab list
     private int itemLayout;                                 // The resource id of item Layout
     private static RecyclerViewClickListener itemListener;  // The click listener of the recycle view
 
@@ -28,10 +32,10 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> implement
     // Constructors //
     //////////////////
 
-    SongAdapter(ArrayList<Song> theSongs, int p_itemLayout, RecyclerViewClickListener p_itemListener)
+    public SongAdapter(ArrayList<Song> theSongs, int p_itemLayout, RecyclerViewClickListener p_itemListener)
     {
         songs = theSongs;
-        itemLayout = p_itemLayout;
+        itemLayout = R.layout.song_tab;
         itemListener = p_itemListener;
     }
 
@@ -55,7 +59,7 @@ class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> implement
     public void onBindViewHolder(ViewHolder holder, int position)
     {
 
-        // Find song by position
+        // Find song_tab by position
         Song song = songs.get(position);
 
         // Save information in holder

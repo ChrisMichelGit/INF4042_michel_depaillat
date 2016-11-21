@@ -1,5 +1,4 @@
-package com.MyMusicPlayer;
-
+package com.MyMusicPlayer.RecyclerViewFastScroll;
 
 import android.annotation.TargetApi;
 import android.content.res.Resources;

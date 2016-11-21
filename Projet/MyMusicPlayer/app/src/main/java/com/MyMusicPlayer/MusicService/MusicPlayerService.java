@@ -1,4 +1,4 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.MusicService;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -26,9 +26,13 @@ import android.util.Log;
 import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
 
+import com.MyMusicPlayer.Activity.MainActivity;
+import com.MyMusicPlayer.R;
+import com.MyMusicPlayer.Song.Song;
+
 import java.io.IOException;
 
-class MusicPlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener,
+public class MusicPlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener,
         MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener, Runnable
 {
 
@@ -40,7 +44,7 @@ class MusicPlayerService extends Service implements MediaPlayer.OnCompletionList
 
     private final IBinder iBinder = new LocalBinder();
     private MediaPlayer mediaPlayer; // The media that actually plays the songs
-    private Song currSong; // The song currently playing
+    private Song currSong; // The song_tab currently playing
     private boolean isFirstSong;
 
     private ServiceCallbacks serviceCallbacks; // Use to communicate with the MainActivity
@@ -703,65 +707,6 @@ class MusicPlayerService extends Service implements MediaPlayer.OnCompletionList
     }
 
 
-    /////////////
-    // Setters //
-    /////////////
-
-    public void setCallbacks(ServiceCallbacks callbacks)
-    {
-        serviceCallbacks = callbacks;
-    }
-
-
-    /////////////////
-    // Other class //
-    /////////////////
-
-    public class LocalBinder extends Binder
-    {
-        MusicPlayerService getService()
-        {
-            return MusicPlayerService.this;
-        }
-    }
-
-    //Becoming noisy
-    private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver()
-    {
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            //pause audio on ACTION_AUDIO_BECOMING_NOISY
-            if (!isFirstSong && intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && currSong != null)
-            {
-                int state = intent.getIntExtra("state", -1);
-                switch (state)
-                {
-                    case 0:
-                        // Headset is unplugged
-                        pauseMedia();
-                        buildNotification(PlaybackStatus.PAUSED);
-                        break;
-                    case 1:
-                        // Headset is plugged
-                        playMedia();
-                        buildNotification(PlaybackStatus.PLAYING);
-                        break;
-                    default:
-                }
-            }
-            isFirstSong = false;
-        }
-    };
-
-    private void registerBecomingNoisyReceiver()
-    {
-        //register after getting audio focus
-        IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HEADSET_PLUG);
-        Log.d(TAG, "registerBecomingNoisyReceiver");
-        registerReceiver(becomingNoisyReceiver, intentFilter);
-    }
-
 
     @TargetApi(Build.VERSION_CODES.M)
     private void buildNotification(PlaybackStatus playbackStatus)
@@ -789,7 +734,7 @@ class MusicPlayerService extends Service implements MediaPlayer.OnCompletionList
             // Update the action of the play_pause button (now set to pause)
             notifRemoteExpand.setOnClickPendingIntent(R.id.play_pause, playbackAction(1));
             notifRemoteCompact.setOnClickPendingIntent(R.id.play_pause, playbackAction(1));
-            
+
             //create the pause action
             play_pauseAction = playbackAction(1);
         }
@@ -811,8 +756,8 @@ class MusicPlayerService extends Service implements MediaPlayer.OnCompletionList
 
         NotificationCompat.Builder notificationBuilder;
         notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                        .setContentIntent(play_pauseAction).setSmallIcon(android.R.drawable.stat_sys_headset).setLargeIcon(currSong.getBitmap())
-                        .setContent(notifRemoteExpand);
+                .setContentIntent(play_pauseAction).setSmallIcon(android.R.drawable.stat_sys_headset).setLargeIcon(currSong.getBitmap())
+                .setContent(notifRemoteExpand).setOngoing(true);;
 
         notif = notificationBuilder.build();
         notif.bigContentView = notifRemoteExpand;
@@ -898,5 +843,65 @@ class MusicPlayerService extends Service implements MediaPlayer.OnCompletionList
         {
             transportControls.fastForward();
         }
+    }
+
+
+    /////////////
+    // Setters //
+    /////////////
+
+    public void setCallbacks(ServiceCallbacks callbacks)
+    {
+        serviceCallbacks = callbacks;
+    }
+
+
+    /////////////////
+    // Other class //
+    /////////////////
+
+    public class LocalBinder extends Binder
+    {
+        public MusicPlayerService getService()
+        {
+            return MusicPlayerService.this;
+        }
+    }
+
+    //Becoming noisy
+    private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            if (!isFirstSong && intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && currSong != null)
+            {
+                int state = intent.getIntExtra("state", -1);
+                switch (state)
+                {
+                    case 0:
+                        // Headset is unplugged
+                        pauseMedia();
+                        buildNotification(PlaybackStatus.PAUSED);
+                        break;
+                    case 1:
+                        // Headset is plugged
+                        playMedia();
+                        buildNotification(PlaybackStatus.PLAYING);
+                        break;
+                    default:
+                }
+            }
+            isFirstSong = false;
+        }
+    };
+
+    private void registerBecomingNoisyReceiver()
+    {
+        //register after getting audio focus
+        IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HEADSET_PLUG);
+        Log.d(TAG, "registerBecomingNoisyReceiver");
+        registerReceiver(becomingNoisyReceiver, intentFilter);
     }
 }

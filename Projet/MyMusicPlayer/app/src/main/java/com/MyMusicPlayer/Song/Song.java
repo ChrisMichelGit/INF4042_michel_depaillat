@@ -1,24 +1,26 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.Song;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.MyMusicPlayer.Activity.MainActivity;
 
-class Song implements Parcelable
+
+public class Song implements Parcelable
 {
 
     ////////////////
     // Attributes //
     ////////////////
 
-    private String artist;          // The artist of the song
-    private String album;           // The album of the song
-    private String title;           // The title of the song
+    private String artist;          // The artist of the song_tab
+    private String album;           // The album of the song_tab
+    private String title;           // The title of the song_tab
     private String data;            // The data
     private long albumId;           // The album ID
-    private long songId;            // The song ID
-    private int duration;           // Duration of the song
+    private long songId;            // The song_tab ID
+    private int duration;           // Duration of the song_tab
     private Bitmap albumArt;        // Album cover
     private MainActivity activity;  // A reference to the MainActivity
 
@@ -27,7 +29,7 @@ class Song implements Parcelable
     // Constructors //
     //////////////////
 
-    Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, int p_duration, MainActivity p_activity)
+    public Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, int p_duration, MainActivity p_activity)
     {
         artist = p_artist;
         album = p_album;
@@ -101,12 +103,12 @@ class Song implements Parcelable
     // Setters //
     /////////////
 
-    void setActivity(MainActivity p_activity)
+    public void setActivity(MainActivity p_activity)
     {
         activity = p_activity;
     }
 
-    void initBitmap()
+    public void initBitmap()
     {
         // Create the bitmap
         albumArt = MusicUtils.getArtwork(activity.getApplicationContext(), songId, albumId);
@@ -116,7 +118,7 @@ class Song implements Parcelable
         activity.addBitmapToMemoryCache(title + albumId, albumArt);
     }
 
-    void setBitmap(Bitmap p_albumArt)
+    public void setBitmap(Bitmap p_albumArt)
     {
         albumArt = p_albumArt;
 
@@ -129,32 +131,32 @@ class Song implements Parcelable
     // Getters //
     /////////////
 
-    String getArtist()
+    public String getArtist()
     {
         return artist;
     }
 
-    String getAlbum()
+    public String getAlbum()
     {
         return album;
     }
 
-    String getTitle()
+    public String getTitle()
     {
         return title;
     }
 
-    String getData()
+    public String getData()
     {
         return data;
     }
 
-    long getAlbumID()
+    public long getAlbumID()
     {
         return albumId;
     }
 
-    long getSongId()
+    public long getSongId()
     {
         return songId;
     }
@@ -164,17 +166,17 @@ class Song implements Parcelable
         return duration;
     }
 
-    Bitmap getBitmap()
+    public Bitmap getBitmap()
     {
         return albumArt;
     }
 
     // Convert duration into a string: hour, min, sec
-    String getDurationToString()
+    public String getDurationToString()
     {
         String convertedDuration = "";
 
-        int hours = 0, mins = 0, secs = 0;
+        int hours, mins, secs;
 
         secs = duration / 1000;
         mins = secs / 60;
