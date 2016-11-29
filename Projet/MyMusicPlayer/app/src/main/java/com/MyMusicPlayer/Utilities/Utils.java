@@ -1,4 +1,4 @@
-package com.MyMusicPlayer.RecyclerViewFastScroll;
+package com.MyMusicPlayer.Utilities;
 
 import android.annotation.TargetApi;
 import android.content.res.Resources;
@@ -6,7 +6,9 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
-class Utils
+import java.util.ArrayList;
+
+public class Utils
 {
 
     /**
@@ -16,7 +18,7 @@ class Utils
      * @param dp  the value in dp
      * @return int
      */
-    static int toPixels(Resources res, float dp)
+    public static int toPixels(Resources res, float dp)
     {
         return (int) (dp * res.getDisplayMetrics().density);
     }
@@ -28,15 +30,25 @@ class Utils
      * @param sp  the value in sp
      * @return int
      */
-    static int toScreenPixels(Resources res, float sp)
+    public static int toScreenPixels(Resources res, float sp)
     {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, res.getDisplayMetrics());
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    static boolean isRtl(Resources res)
+    public static boolean isRtl(Resources res)
     {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) &&
                 (res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
+    }
+
+    // Extend the actual size of an ArrayList to the desired size
+    public static void ensureSize (ArrayList<?> array, int size)
+    {
+        array.ensureCapacity(size);
+        while (array.size() <= size)
+        {
+            array.add(null);
+        }
     }
 }

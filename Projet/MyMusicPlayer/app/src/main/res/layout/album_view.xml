@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="5dp"
+              android:clickable="true"
+              android:background="@color/colorPrimary"
+              android:weightSum="1">
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/back_to_album"
+			android:onClick="returnToAlbum"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<TextView
+			android:id="@+id/album_title"
+			android:layout_gravity="center"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<ImageView
+			android:src="@drawable/albumart_mp_unknown"
+			android:id="@+id/album_view_album_art"
+			android:layout_width="200px"
+			android:layout_height="200px"
+			android:contentDescription="@string/album_cover"/>
+
+		<ImageView
+			android:src="@drawable/albumart_mp_unknown"
+			android:id="@+id/album_view_artist_art"
+			android:layout_width="match_parent"
+			android:layout_height="200px"
+			android:contentDescription="@string/artist_cover"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<TextView
+			android:id="@+id/album_songs_number"
+			android:layout_gravity="center"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<TextView
+			android:id="@+id/total_time"
+			android:layout_gravity="center"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+
+	<com.MyMusicPlayer.RecyclerViewFastScroll.FastScrollRecyclerView
+		android:id="@+id/song_list"
+		android:scrollbarStyle="outsideOverlay"
+		android:scrollbars="vertical"
+		android:fastScrollEnabled="true"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" />
+</LinearLayout>

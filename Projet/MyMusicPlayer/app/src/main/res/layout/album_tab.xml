@@ -22,7 +22,7 @@
         android:layout_weight="0.96">
 
         <TextView
-            android:id="@+id/song_title"
+            android:id="@+id/album_title"
             android:ellipsize="marquee"
             android:maxLines="1"
             android:gravity="start"
@@ -37,7 +37,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/song_album"
+            android:id="@+id/album_artist"
             android:ellipsize="marquee"
             android:maxLines="1"
             android:scrollHorizontally="true"
@@ -50,7 +50,7 @@
             android:textSize="10sp" />
 
         <TextView
-            android:id="@+id/song_artist"
+            android:id="@+id/album_songs_number"
             android:ellipsize="marquee"
             android:maxLines="1"
             android:scrollHorizontally="true"
@@ -64,7 +64,7 @@
 
 
         <TextView
-            android:id="@+id/song_duration"
+            android:id="@+id/album_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#eeeeee"

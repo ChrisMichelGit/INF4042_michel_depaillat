@@ -13,6 +13,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.MyMusicPlayer.Utilities.Utils;
+
 
 public class FastScrollRecyclerView extends RecyclerView implements RecyclerView.OnItemTouchListener
 {

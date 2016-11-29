@@ -1,4 +1,4 @@
-package com.MyMusicPlayer.Song;
+package com.MyMusicPlayer.Utilities;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -58,7 +58,7 @@ public class MusicUtils
 
     // Get album art for specified album. You should not pass in the album id for the "unknown" album here (use -1 instead)
     // This method always returns the default album art icon when no album art is found.
-    static Bitmap getArtwork(Context context, long song_id, long album_id)
+    public static Bitmap getArtwork(Context context, long song_id, long album_id)
     {
         return getArtwork(context, song_id, album_id, true);
     }
@@ -168,9 +168,38 @@ public class MusicUtils
     }
 
     // Get the default artwork
-    static Bitmap getDefaultArtwork()
+    public static Bitmap getDefaultArtwork()
     {
         return defaultBM;
+    }
+
+    // Convert duration into a string: hour, min, sec
+    public static String getDurationToString(int duration)
+    {
+        String convertedDuration = "";
+
+        int hours, mins, secs;
+
+        secs = duration / 1000;
+        mins = secs / 60;
+        secs = secs - (mins * 60);
+        hours = mins / 60;
+        mins = mins - (hours * 60);
+
+        if (hours > 0)
+        {
+            if (hours / 10 == 0) convertedDuration += "0" + hours + ":";
+            else convertedDuration += hours + ":";
+        }
+
+        if (mins / 10 == 0) convertedDuration += "0" + mins + ":";
+        else convertedDuration += mins + ":";
+
+        if (secs / 10 == 0) convertedDuration += "0" + secs;
+        else convertedDuration += secs;
+
+
+        return convertedDuration;
     }
 
 }

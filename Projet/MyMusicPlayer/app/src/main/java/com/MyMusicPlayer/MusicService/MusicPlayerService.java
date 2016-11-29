@@ -28,6 +28,7 @@ import android.widget.RemoteViews;
 
 import com.MyMusicPlayer.Activity.MainActivity;
 import com.MyMusicPlayer.R;
+import com.MyMusicPlayer.Utilities.MusicUtils;
 import com.MyMusicPlayer.Song.Song;
 
 import java.io.IOException;
@@ -322,41 +323,13 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
     private synchronized void update ()
     {
         notifRemoteExpand.setProgressBar(R.id.progressBar_notif, total, currentPosition, false);
-        notifRemoteExpand.setTextViewText(R.id.current_time, convertCurrentTimeToString());
+        notifRemoteExpand.setTextViewText(R.id.current_time, MusicUtils.getDurationToString(currentPosition));
         mNotificationManager.notify(NOTIFICATION_ID, notif);
     }
 
     /////////////
     // Methods //
     /////////////
-
-    private String convertCurrentTimeToString ()
-    {
-        String convertedDuration = "";
-
-        int hours = 0, mins = 0, secs = 0;
-
-        secs = currentPosition / 1000;
-        mins = secs / 60;
-        secs = secs - (mins * 60);
-        hours = mins / 60;
-        mins = mins - (hours * 60);
-
-        if (hours > 0)
-        {
-            if (hours / 10 == 0) convertedDuration += "0" + hours + ":";
-            else convertedDuration += hours + ":";
-        }
-
-        if (mins / 10 == 0) convertedDuration += "0" + mins + ":";
-        else convertedDuration += mins + ":";
-
-        if (secs / 10 == 0) convertedDuration += "0" + secs;
-        else convertedDuration += secs;
-
-
-        return convertedDuration;
-    }
 
     private void playMedia()
     {
@@ -540,16 +513,16 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
             notifRemoteExpand.setTextViewText(R.id.notif_title, currSong.getTitle());
             notifRemoteExpand.setTextViewText(R.id.notif_album, currSong.getAlbum());
             notifRemoteExpand.setTextViewText(R.id.notif_artist, currSong.getArtist());
-            notifRemoteExpand.setTextViewText(R.id.current_time, convertCurrentTimeToString());
-            notifRemoteExpand.setTextViewText(R.id.total_time, currSong.getDurationToString());
+            notifRemoteExpand.setTextViewText(R.id.current_time, MusicUtils.getDurationToString(currentPosition));
+            notifRemoteExpand.setTextViewText(R.id.total_time, MusicUtils.getDurationToString(currSong.getDuration()));
 
             // Remote view compact
             notifRemoteCompact.setImageViewBitmap(R.id.notif_album_art, Bitmap.createScaledBitmap(currSong.getBitmap(), 200, 200, true));
             notifRemoteCompact.setTextViewText(R.id.notif_title, currSong.getTitle());
             notifRemoteCompact.setTextViewText(R.id.notif_album, currSong.getAlbum());
             notifRemoteCompact.setTextViewText(R.id.notif_artist, currSong.getArtist());
-            notifRemoteCompact.setTextViewText(R.id.current_time, convertCurrentTimeToString());
-            notifRemoteCompact.setTextViewText(R.id.total_time, currSong.getDurationToString());
+            notifRemoteCompact.setTextViewText(R.id.current_time, MusicUtils.getDurationToString(currentPosition));
+            notifRemoteCompact.setTextViewText(R.id.total_time, MusicUtils.getDurationToString(currSong.getDuration()));
         }
     }
 
@@ -629,9 +602,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         // through its MediaSessionCompat.Callback.
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        //Set mediaSession's MetaData
-//        updateSongMetaData();
-
         // Attach Callback to receive MediaSession updates
         mediaSession.setCallback(new MediaSessionCompat.Callback()
         {
@@ -707,7 +677,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
 
-
+    // Build and update the notification
     @TargetApi(Build.VERSION_CODES.M)
     private void buildNotification(PlaybackStatus playbackStatus)
     {
@@ -718,6 +688,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
          *  1 -> Pause
          *  2 -> Next track
          *  3 -> Previous track
+         *  4 -> Rewind
+         *  5 -> Fast forward
          */
 
         int notificationAction;
@@ -767,6 +739,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         mNotificationManager.notify(NOTIFICATION_ID, notif);
     }
 
+    // The action that each buttons of the notification will return
     private PendingIntent playbackAction(int actionNumber)
     {
         Intent playbackAction = new Intent(this, MusicPlayerService.class);
@@ -802,6 +775,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         return null;
     }
 
+    // Remove every notification that the service has opened
     private void removeNotification()
     {
         Log.d(TAG, "removeNotification");
@@ -810,6 +784,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         notificationManager.cancelAll();
     }
 
+    // Catch the input of the notification button and execute the correct action
     private void handleIncomingActions(Intent playbackAction)
     {
         if (playbackAction == null || playbackAction.getAction() == null) return;
@@ -868,13 +843,12 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnComplet
         }
     }
 
-    //Becoming noisy
+    // Pause audio when the headset is unplugged
     private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver()
     {
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            //pause audio on ACTION_AUDIO_BECOMING_NOISY
             if (!isFirstSong && intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && currSong != null)
             {
                 int state = intent.getIntExtra("state", -1);

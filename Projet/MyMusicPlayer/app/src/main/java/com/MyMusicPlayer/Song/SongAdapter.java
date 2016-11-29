@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.MyMusicPlayer.R;
 import com.MyMusicPlayer.RecyclerViewFastScroll.RecyclerViewClickListener;
 import com.MyMusicPlayer.RecyclerViewFastScroll.FastScrollRecyclerView;
+import com.MyMusicPlayer.Utilities.MusicUtils;
 
 import java.util.ArrayList;
 
@@ -35,7 +36,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> im
     public SongAdapter(ArrayList<Song> theSongs, int p_itemLayout, RecyclerViewClickListener p_itemListener)
     {
         songs = theSongs;
-        itemLayout = R.layout.song_tab;
+        itemLayout = p_itemLayout;
         itemListener = p_itemListener;
     }
 
@@ -70,7 +71,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> im
             holder.songName.setText(song.getTitle());
             holder.album.setText(song.getAlbum());
             holder.artist.setText(song.getArtist());
-            holder.duration.setText(song.getDurationToString());
+            holder.duration.setText(MusicUtils.getDurationToString(song.getDuration()));
             holder.itemView.setTag(song);
 
             // Color the background, even = classic, odd = classic dark
@@ -141,7 +142,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> im
         @Override
         public void onClick(View v)
         {
-            itemListener.recyclerViewListClicked(v, this.getLayoutPosition());
+            itemListener.recyclerViewListClickedSong(v, songs.get(this.getLayoutPosition()), this.getLayoutPosition());
         }
     }
 }

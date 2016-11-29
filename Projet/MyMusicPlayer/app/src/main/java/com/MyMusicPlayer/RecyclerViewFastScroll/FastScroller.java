@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import com.MyMusicPlayer.R;
+import com.MyMusicPlayer.Utilities.Utils;
 
 
 public class FastScroller

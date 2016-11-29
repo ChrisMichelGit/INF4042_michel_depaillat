@@ -10,6 +10,8 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 
+import com.MyMusicPlayer.Utilities.Utils;
+
 
 public class FastScrollPopup
 {
