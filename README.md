@@ -9,7 +9,7 @@ Il s'agit d'une application permettant de lire de la musique
 - Notification permattant de changer l'état de la chanson jouer
 - Une popup affichant trois options : Trouver la pochette de l'album correspondant et la télécharger (via l'API Spotify), Editer la pochetter avec une photo présente sur l'appareil, Modifier les informations de la chanson voulue
 
-![alt tag](https://raw.githubusercontent.com/Loupimo/INF4042_michel_depaillat/Illustration.png)
+![alt tag](https://raw.githubusercontent.com/ChrisMichelGit/INF4042_michel_depaillat/master/Illustration.png)
 
 # Notes importantes
 Cette application à principalement été testée sur un appareil physique API 23 (un téléphone One Plus 3). Elle devrait normalement tourner sur des API 17 au plus bas.
