@@ -23,7 +23,10 @@ public class Song implements Parcelable
     private String data;            // The data
     private long albumId;           // The album ID
     private long songId;            // The song ID
+    private long artistId;          // The artist ID
     private int duration;           // Duration of the song
+    private int year;               // The year of the song
+    private int trackNumber;        // The number of the song in the album
     private Bitmap albumArt;        // Album cover
     private MainActivity activity;  // A reference to the MainActivity
 
@@ -32,7 +35,7 @@ public class Song implements Parcelable
     // Constructors //
     //////////////////
 
-    public Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, int p_duration, MainActivity p_activity)
+    public Song(String p_artist, String p_album, String p_title, String p_data, long p_albumId, long p_songId, long p_artistId, int p_duration, int p_trackNumber, int p_year, MainActivity p_activity)
     {
         artist = p_artist;
         album = p_album;
@@ -40,7 +43,10 @@ public class Song implements Parcelable
         data = p_data;
         albumId = p_albumId;
         songId = p_songId;
+        artistId = p_artistId;
         duration = p_duration;
+        trackNumber = p_trackNumber;
+        year = p_year;
         albumArt = MusicUtils.getDefaultArtwork();
         activity = p_activity;
     }
@@ -118,10 +124,10 @@ public class Song implements Parcelable
         {
             // Create the bitmap
             albumArt = MusicUtils.getArtwork(activity.getApplicationContext(), songId, albumId);
-            albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
 
+            albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
             // Add the album cover to the cache
-            activity.addBitmapToMemoryCache(album, albumArt);
+            activity.addBitmapToMemoryCache(album + albumId, albumArt);
         }
 
         else
@@ -133,15 +139,28 @@ public class Song implements Parcelable
 
     public void setBitmap(Bitmap p_albumArt)
     {
-        albumArt = p_albumArt;
-
-        // Add the album cover to the cache
-        activity.addBitmapToMemoryCache(album, albumArt);
+        if (p_albumArt != null)
+        {
+            albumArt = p_albumArt;
+            albumArt = Bitmap.createScaledBitmap(albumArt, 200, 200, true);
+            // Add the album cover to the cache
+            activity.addBitmapToMemoryCache(album + albumId, albumArt);
+        }
     }
 
     public void setAlbumRef (Album ref)
     {
         albumRef = ref;
+    }
+
+    public void setTitle (String p_title) { title = p_title; }
+
+    public void setAlbum (String p_album) { album = p_album; }
+
+    public void setYear (int p_year)
+    {
+        year = p_year;
+        albumRef.setYear (year);
     }
 
 
@@ -191,4 +210,20 @@ public class Song implements Parcelable
 
     public Album getAlbumRef() { return albumRef; }
 
+    public long getArtistId()
+    {
+        return artistId;
+    }
+
+    public int getTrackNumber()
+    {
+        return trackNumber;
+    }
+
+    public int getYear()
+    {
+        return year;
+    }
+
+    public MainActivity getActivity () { return activity; }
 }

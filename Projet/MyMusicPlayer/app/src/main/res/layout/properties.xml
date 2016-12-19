@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/title_prop"
+		android:text="@string/title"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		/>
+
+	<EditText
+		android:id="@+id/song_title_prop"
+		android:hint="@string/title_hint"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		/>
+
+	<TextView
+		android:id="@+id/album_prop"
+		android:text="@string/album"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		/>
+
+	<EditText
+		android:id="@+id/album_title_prop"
+		android:hint="@string/album_hint"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		/>
+
+	<TextView
+		android:id="@+id/year"
+		android:text="@string/year"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		/>
+
+	<EditText
+		android:id="@+id/year_prop"
+		android:hint="@string/year_hint"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:inputType="number"
+		/>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_gravity="end"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/dialog_ok"
+			android:text="@string/save_info"
+			android:textColor="@color/green"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<Button
+			android:id="@+id/dialog_cancel"
+			android:text="@string/cancel"
+			android:textColor="@color/red"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+	</LinearLayout>
+</LinearLayout>

@@ -14,6 +14,14 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/album_cover" />
 
+    <TextView
+        android:padding="5dp"
+        android:id="@+id/track_number"
+        android:layout_gravity="center_vertical"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -75,10 +83,9 @@
 
     <Button
         android:layout_gravity="center_vertical"
-        android:onClick="openPopUpMenu"
         android:layout_marginRight="5dp"
         android:layout_marginEnd="5dp"
-        android:id="@+id/play_button"
+        android:id="@+id/popup_button"
         android:layout_height="30dp"
         android:layout_width="30dp"
         android:background="@drawable/btn_popup" />

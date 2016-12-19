@@ -13,9 +13,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<Button
+		<ImageButton
 			android:id="@+id/back_to_album"
 			android:onClick="returnToAlbum"
+			android:src="@android:drawable/ic_media_previous"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"/>
 
@@ -38,12 +39,7 @@
 			android:layout_height="200px"
 			android:contentDescription="@string/album_cover"/>
 
-		<ImageView
-			android:src="@drawable/albumart_mp_unknown"
-			android:id="@+id/album_view_artist_art"
-			android:layout_width="match_parent"
-			android:layout_height="200px"
-			android:contentDescription="@string/artist_cover"/>
+
 
 	</LinearLayout>
 
@@ -56,10 +52,19 @@
 			android:id="@+id/album_songs_number"
 			android:layout_gravity="center"
 			android:layout_width="wrap_content"
+			android:padding="5dp"
 			android:layout_height="wrap_content"/>
 
 		<TextView
+			android:padding="5dp"
 			android:id="@+id/total_time"
+			android:layout_gravity="center"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<TextView
+			android:padding="5dp"
+			android:id="@+id/album_year"
 			android:layout_gravity="center"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"/>

@@ -1,14 +1,16 @@
-package com.MyMusicPlayer;
+package com.MyMusicPlayer.Utilities;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.MyMusicPlayer.Album.TabAlbumFragment;
+import com.MyMusicPlayer.Artist.TabArtistFragment;
 import com.MyMusicPlayer.Song.TabSongFragment;
 
 public class PageAdapter extends FragmentStatePagerAdapter {
     private int mNumOfTabs;
+    private Fragment fragTab;
 
     public PageAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
@@ -20,12 +22,16 @@ public class PageAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                return new TabSongFragment();
+                fragTab = new TabSongFragment();
+                return fragTab;
             case 1:
-                return new TabAlbumFragment();
+                fragTab = new TabAlbumFragment();
+                return fragTab;
             case 2:
+                fragTab = new TabArtistFragment();
+                return fragTab;
             default:
-                return null;
+                return fragTab;
         }
     }
 

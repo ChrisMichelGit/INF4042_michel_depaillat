@@ -36,7 +36,7 @@ public class TabSongFragment extends Fragment
         songView.setThumbColor(ma.getColor(R.color.grey));
 
         // Set the adapter for the view
-        SongAdapter songAdt = new SongAdapter(ma.getSongList(), R.layout.song_tab, ma);
+        SongAdapter songAdt = new SongAdapter(ma.getSongList(), R.layout.song_tab, false, ma);
         songView.setAdapter(songAdt);
 
         LinearLayoutManager lm = new LinearLayoutManager(getActivity());

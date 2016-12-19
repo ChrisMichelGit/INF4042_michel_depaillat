@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">My Music Player</string>
+	<string name="album_cover">Couverture</string>
+	<string name="end">Fin</string>
+	<string name="shuffle">Trier</string>
+	<string name="play_pause">jouer pause</string>
+	<string name="previous">précédent</string>
+	<string name="next">suivant</string>
+	<string name="fast_forward">avance rapide</string>
+	<string name="rewind">rembobiner</string>
+	<string name="separator">séparateur</string>
+	<string name="edit">Editer la couverture</string>
+	<string name="properties">Propriétés</string>
+	<string name="find_album_cover">Trouver la couverture</string>
+	<string name="songs">Musiques</string>
+	<string name="albums">Albums</string>
+	<string name="album">Album</string>
+	<string name="tracks">pistes</string>
+	<string name="artist_cover">Photo de l\'artist</string>
+	<string name="year">Année</string>
+	<string name="total_length">Durée totale</string>
+	<string name="image_picker_chooser">Choisissez un sélectionneur d\'image</string>
+	<string name="save_info">Sauvegarder</string>
+	<string name="cancel">Annuler</string>
+	<string name="title">Titre</string>
+	<string name="title_hint">Ajoutez un titre ici</string>
+	<string name="year_hint">Ajoutez une année ici</string>
+	<string name="album_hint">Ajoutez un nom d\'album ici</string>
+	<string name="no_connection">Aucune connexion</string>
+	<string name="result">Résultat</string>
+	<string name="bad_result">Il semblerait que nous n\'avons pas pu trouver la couverture de votre album. Pour augmeter les chances de succès, veuillez vérifier que les informations de la chanson sont correctes (vous pouvez les modifier dans propriétés)</string>
+	<string name="downloading">Téléchargement de la couverture</string>
+	<string name="you_clicked">"Vous avez cliqué sur : "</string>
+</resources>

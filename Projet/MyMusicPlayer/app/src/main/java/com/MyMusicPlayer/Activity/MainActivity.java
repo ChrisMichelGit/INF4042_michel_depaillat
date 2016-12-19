@@ -24,11 +24,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.util.LruCache;
 import android.os.Bundle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,18 +38,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.MyMusicPlayer.Album.Album;
+import com.MyMusicPlayer.Artist.Artist;
 import com.MyMusicPlayer.MusicService.MusicPlayerService;
 import com.MyMusicPlayer.MusicService.ServiceCallbacks;
-import com.MyMusicPlayer.PageAdapter;
+import com.MyMusicPlayer.Utilities.PageAdapter;
 import com.MyMusicPlayer.RecyclerViewFastScroll.FastScrollRecyclerView;
 import com.MyMusicPlayer.Song.SongAdapter;
+import com.MyMusicPlayer.Utilities.PropertiesDialog;
 import com.MyMusicPlayer.Utilities.Utils;
 import com.MyMusicPlayer.Utilities.MusicUtils;
 import com.MyMusicPlayer.R;
@@ -57,7 +59,6 @@ import com.MyMusicPlayer.RecyclerViewFastScroll.RecyclerViewClickListener;
 import com.MyMusicPlayer.Song.Song;
 
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class MainActivity extends AppCompatActivity implements RecyclerViewClickListener, ServiceCallbacks
 {
 
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     ////////////////
 
     private String TAG = "MainActivity";                                                // The log tag
+    private static int IMAGE_PICKER_CODE = 0;                                           // The request code from the image picker app
+    private Song selectedForEdit;                                                       // The song selected for editing
 
     private ArrayList<Song> songList;                                                   // The list containing all the song of the user
     private ArrayList<Album> albumList;                                                 // The list containing all the album of the user
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     boolean serviceBound = false;                                                       // To know if the above service is active or not
 
     private String[] permissionsList = {Manifest.permission.READ_EXTERNAL_STORAGE,
-                                        Manifest.permission.READ_PHONE_STATE     };     // The list of needed permissions
+            Manifest.permission.READ_PHONE_STATE};     // The list of needed permissions
     private int[] requestCode = {1, 2};                                                 // The request code for the permission (each code correspond to the permission at the same index of permissionList)
 
     private LruCache<String, Bitmap> mMemoryCache;                                      // The cache containing all album cover
@@ -90,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     private Album currAlbum = null;                                                     // The current played song
     private Song currSong = null;                                                       // The album of the current played song
     private Album currLookingAlbum = null;                                              // The album that the user is currently looking at
+    public PageAdapter adapter;
+    public Bundle bundle;
+    public ViewPager viewPager;
 
     //Binding this Client to the MusicPlayer Service
     private ServiceConnection serviceConnection = new ServiceConnection()
@@ -166,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 // Set the cache
                 retainFragment.mRetainedCache = mMemoryCache;
                 setTabLayout(0);
+
+                bundle = new Bundle();
             }
 
         }
@@ -180,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 {
                     Log.i(TAG, song.getTitle());
                     song.setActivity(this);
-                    song.setBitmap(getBitmapFromMemCache(song.getAlbum()));
+                    song.setBitmap(getBitmapFromMemCache(song.getAlbum()+song.getAlbumID()));
                 }
             }
             if (albumList != null)
@@ -189,18 +197,21 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 {
                     Log.i(TAG, album.getTitle());
                     album.setActivity(this);
-                    album.setBitmap(getBitmapFromMemCache(album.getTitle()));
+                    album.setBitmap(getBitmapFromMemCache(album.getTitle()+album.getAlbumID()));
                 }
             }
-            chooseView (viewNumber);
+            chooseView(viewNumber);
+            bundle = savedInstanceState;
         }
     }
 
     @Override
-    protected void onStart ()
+    protected void onStart()
     {
         super.onStart();
-        if (player != null) player.setCallbacks(MainActivity.this); // Refresh the service callback to use values of this instance
+        if (player != null)
+            player.setCallbacks(MainActivity.this); // Refresh the service callback to use values of this instance
+
     }
 
     @Override
@@ -221,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState)
     {
-        Log.i (TAG, "Restored Instance");
+        Log.i(TAG, "Restored Instance");
         super.onRestoreInstanceState(savedInstanceState);
         songList = savedInstanceState.getParcelableArrayList("songList");
         albumList = savedInstanceState.getParcelableArrayList("albumList");
@@ -235,7 +246,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     }
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed()
+    {
         moveTaskToBack(true);
     }
 
@@ -282,12 +294,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     @Override
     public void recyclerViewListClickedAlbum(View v, Album album)
     { // Create the album view
-
         currLookingAlbum = album;
         viewNumber = 1;
 
-        LayoutInflater inf = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View albumView = inf.inflate(R.layout.album_view, (ViewGroup)v.getRootView(), false);
+        LayoutInflater inf = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View albumView = inf.inflate(R.layout.album_view, (ViewGroup) v.getRootView(), false);
 
         // Set all the field of album_view
         TextView title = (TextView) albumView.findViewById(R.id.album_title);
@@ -302,7 +313,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         numSongs.setText(numOfSongs);
 
         TextView duration = (TextView) albumView.findViewById(R.id.total_time);
-        duration.setText(MusicUtils.getDurationToString(album.getDuration()));
+        String stringTotalLength = getString(R.string.total_length) + ": " + MusicUtils.getDurationToString(album.getDuration());
+        duration.setText(stringTotalLength);
+
+
+        TextView year = (TextView) albumView.findViewById(R.id.album_year);
+        String stringYear = getString(R.string.year) + ": " + album.getYear();
+        year.setText(stringYear);
 
         // Song list of the album
         FastScrollRecyclerView albumSong = (FastScrollRecyclerView) albumView.findViewById(R.id.song_list);
@@ -316,8 +333,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         albumSong.setThumbColor(getColor(R.color.grey));
 
 
-
-        SongAdapter sa = new SongAdapter(album.getSongList(), R.layout.song_tab, this);
+        SongAdapter sa = new SongAdapter(album.getSongList(), R.layout.song_tab, true, this);
         albumSong.setAdapter(sa);
 
         LinearLayoutManager lm = new LinearLayoutManager(this);
@@ -325,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         albumSong.scrollToPosition(lm.findFirstCompletelyVisibleItemPosition());
 
         // Button to get back to the previous view
-        Button back = (Button) albumView.findViewById(R.id.back_to_album);
+        ImageButton back = (ImageButton) albumView.findViewById(R.id.back_to_album);
         back.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -339,6 +355,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         this.setContentView(albumView);
     }
 
+    @Override
+    public void recyclerViewListClickedArtist(View v, Artist artist)
+    {
+        // To Do...
+    }
+
+    @Override
+    public void recyclerViewListClickedPopup(View v, Song correspondingSong)
+    {
+        selectedForEdit = correspondingSong; // Set the song corresponding to the clicked popup
+        openPopUpMenu(v);
+    }
+
     // ServiceCallbacks methods //
 
     @Override
@@ -348,14 +377,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         { // Song clicked from an album
 
             if (currSongPlayingID == currAlbum.getSongList().size() - 1)
-            {
+            { // The current song was the last song of the album
                 currSongPlayingID = 0;
                 currSong = currAlbum.getSongList().get(0);
                 currAlbum = currSong.getAlbumRef();
                 return currSong;
             }
             else
-            {
+            { // There are others songs after the current song
                 currSongPlayingID++;
                 currSong = currAlbum.getSongList().get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
@@ -363,16 +392,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
             }
         }
         else
-        {
+        { // Song clicked from song menu
+
             if (currSongPlayingID == songList.size() - 1)
-            {
+            { // The current song was the last song
                 currSongPlayingID = 0;
                 currSong = songList.get(0);
                 currAlbum = currSong.getAlbumRef();
                 return currSong;
             }
             else
-            {
+            { // There are others songs after the current song
                 currSongPlayingID++;
                 currSong = songList.get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
@@ -389,14 +419,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         { // Song clicked from an album
 
             if (currSongPlayingID == 0)
-            {
+            { // The current song was the first song of the album
                 currSongPlayingID = currAlbum.getSongList().size() - 1;
                 currSong = currAlbum.getSongList().get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
                 return currSong;
             }
             else
-            {
+            { // There are others songs before the current song
                 currSongPlayingID--;
                 currSong = currAlbum.getSongList().get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
@@ -404,17 +434,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
             }
         }
         else
-        {
+        { // Song clicked from song menu
 
             if (currSongPlayingID == 0)
-            {
+            { // The current song was the first song
                 currSongPlayingID = songList.size() - 1;
                 currSong = songList.get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
                 return currSong;
             }
             else
-            {
+            { // There are others songs before the current song
                 currSongPlayingID--;
                 currSong = songList.get(currSongPlayingID);
                 currAlbum = currSong.getAlbumRef();
@@ -423,6 +453,31 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         }
     }
 
+    /* Intent methods */
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        // Check which request we're responding to
+        if (requestCode == IMAGE_PICKER_CODE)
+        {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK && selectedForEdit != null)
+            {
+                try
+                {
+                    Bitmap bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+                    selectedForEdit.setBitmap(bm);
+                    viewPager.setAdapter(adapter); // Refresh the list
+                    selectedForEdit = null;
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     /////////////
     // Methods //
@@ -459,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     {
         if (bitmap != null)
         {
-            Log.i(TAG, "Bitmap Added to cache at key: " + key);
+            //Log.i(TAG, "Bitmap Added to cache at key: " + key);
             mMemoryCache.put(key, bitmap);
         }
     }
@@ -495,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         }
     }
 
-    public void openPopUpMenu (View v)
+    public void openPopUpMenu(View v)
     {
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(MainActivity.this, v);
@@ -503,9 +558,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu());
 
         //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                Toast.makeText(MainActivity.this,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+        {
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                Toast.makeText(MainActivity.this, getString(R.string.you_clicked) + item.getTitle(), Toast.LENGTH_SHORT).show();
+                if (item.getTitle().equals(getResources().getString(R.string.edit)))
+                    openImageChooser();
+                else if (item.getTitle().equals(getResources().getString(R.string.properties)))
+                    openPropertiesModifier();
+                else if (item.getTitle().equals(getResources().getString(R.string.find_album_cover)))
+                {
+                    downloadInfo ();
+                }
                 return true;
             }
         });
@@ -513,17 +578,68 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         popup.show();//showing popup menu
     }
 
+    // Show a list of app to pick an image
+    public void openImageChooser()
+    {
+        Intent imagePickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerIntent.setType("image/*");
+
+        String title = getResources().getString(R.string.image_picker_chooser);
+
+        // Create intent to show chooser
+        Intent chooser = Intent.createChooser(imagePickerIntent, title);
+
+        // Verify the intent will resolve to at least one activity
+        if (imagePickerIntent.resolveActivity(getPackageManager()) != null)
+        {
+            startActivityForResult(chooser, IMAGE_PICKER_CODE);
+        }
+        else
+        {
+            selectedForEdit = null;
+        }
+    }
+
+    // Show the music properties dialog
+    public void openPropertiesModifier()
+    {
+        PropertiesDialog prDia = new PropertiesDialog();
+        prDia.newInstance(selectedForEdit, this);
+        prDia.show(getSupportFragmentManager(), "FRAG");
+    }
+
+    public void downloadInfo ()
+    {
+        Intent intent = new Intent(this, DownloadActivity.class);
+        intent.putExtra("Song title", selectedForEdit.getTitle());
+        intent.putExtra("Song album", selectedForEdit.getAlbum());
+        intent.putExtra("Song artist", selectedForEdit.getArtist());
+        startActivity(intent);
+    }
+
     public void returnToAlbum(View view)
     {
-        currLookingAlbum = null;
+
+        // currLookingAlbum = null;
         setTabLayout(1);
+      /*   adapter.setFragment(getSupportFragmentManager().getFragment(bundle, "TabFrag"));
+         //viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(1);
+        viewPager.removeAllViews();
+        View v = adapter.getFragment().getView();
+        //((ViewGroup)v.getParent()).removeView(v);
+        ((ViewGroup)view.getParent()).removeView(v);
+        viewPager.addView(v);
+        setContentView(v);*/
     }
 
 
     private void chooseView(int viewNumber)
     {
         if (viewNumber == 0) setTabLayout(0);
-        else if (viewNumber == 1) recyclerViewListClickedAlbum(this.findViewById(android.R.id.content), currLookingAlbum);
+        else if (viewNumber == 1)
+            recyclerViewListClickedAlbum(this.findViewById(android.R.id.content), currLookingAlbum);
+
     }
 
 
@@ -532,23 +648,26 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     /////////////
 
     // Initialize the album list
-    public void setAlbumList (Song song) {
+    public void setAlbumList(Song song)
+    {
         Utils.ensureSize(albumList, (int) song.getAlbumID());
-        if (albumList.get((int)song.getAlbumID()) == null)
+
+        if (albumList.get((int) song.getAlbumID()) == null)
         {
-            Log.d (TAG, "Added a new album");
-            Album tempAlbum = new Album(song.getArtist(), song.getAlbum(), song.getAlbumID(), this);
+            Log.d(TAG, "Added a new album: " + song.getTitle() + ", albumID: " + song.getAlbumID());
+            Album tempAlbum = new Album(song.getArtist(), song.getAlbum(), song.getAlbumID(), song.getArtistId(), song.getYear(), this);
             tempAlbum.addSongToAlbum(song);
-            albumList.add((int)song.getAlbumID(), tempAlbum);
+            albumList.add((int) song.getAlbumID(), tempAlbum);
         }
         else
         {
-            albumList.get((int)song.getAlbumID()).addSongToAlbum(song);
+            albumList.get((int) song.getAlbumID()).addSongToAlbum(song);
         }
     }
 
+    // Set the tab corresponding to the given index
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void setTabLayout (int tabIndex)
+    public void setTabLayout(int tabIndex)
     {
         viewNumber = 0;
 
@@ -562,27 +681,32 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         tabLayout.addTab(tabLayout.newTab().setText(R.string.songs));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.albums));
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        PagerAdapter adapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        adapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
 
         assert viewPager != null;
         viewPager.setAdapter(adapter);
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
+        {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
+            public void onTabSelected(TabLayout.Tab tab)
+            {
+
                 viewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+            public void onTabUnselected(TabLayout.Tab tab)
+            {
 
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+            public void onTabReselected(TabLayout.Tab tab)
+            {
 
             }
         });
@@ -597,7 +721,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     /////////////
 
     // Get the first the song_tab played
-    public static Song getCurrentSongPlaying ()
+    public static Song getCurrentSongPlaying()
     {
         return firstSong;
     }
@@ -627,14 +751,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 String title = musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
                 String data = musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
                 long albumId = musicCursor.getLong(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                long artistId = musicCursor.getLong(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID));
                 long songId = musicCursor.getLong(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
                 int duration = musicCursor.getInt(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                int year = musicCursor.getInt(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
+                int trackNumber = musicCursor.getInt(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK));
 
-                Song song = new Song(artist, album, title, data, albumId, songId, duration, this);
+                Song song = new Song(artist, album, title, data, albumId, songId, artistId, duration, trackNumber, year, this);
 
                 // Add the song to its album
                 setAlbumList(song);
-                song.setAlbumRef(albumList.get((int)song.getAlbumID()));
+                song.setAlbumRef(albumList.get((int) song.getAlbumID()));
 
                 // Store the song
                 songList.add(song);
@@ -699,7 +826,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 {
                     for (int i = numThread * threadId * 50; i < numThread * threadId * 50 + coverByThread; i++)
                     {
-                        Log.i(TAG, "Thread n°" + threadId + " id: " + i);
+                        //Log.i(TAG, "Thread n°" + threadId + " id: " + i);
                         songList.get(i).initBitmap();
                     }
                 }
@@ -714,7 +841,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
             {
                 for (int i = numThread * currThreadId * 50; i < numThread * currThreadId * 50 + lastThread; i++)
                 {
-                    Log.i(TAG, "Thread n°" + currThreadId + " id: " + i);
+                    //Log.i(TAG, "Thread n°" + currThreadId + " id: " + i);
                     songList.get(i).initBitmap();
                 }
             }
@@ -726,8 +853,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         return songList;
     }
 
-    public ArrayList<Album> getAlbumList() {return albumList; }
-
+    public ArrayList<Album> getAlbumList()
+    {
+        return albumList;
+    }
 
 
     /////////////////
