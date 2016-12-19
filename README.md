@@ -13,5 +13,5 @@ Il s'agit d'une application permettant de lire de la musique
 ![alt tag](https://raw.githubusercontent.com/ChrisMichelGit/INF4042_michel_depaillat/master/Illustration.png)
 
 # Notes importantes
-Cette application à principalement été testée sur un appareil physique API 23 (un téléphone One Plus 3). Elle devrait normalement tourner sur des API 17 au plus bas.
+Cette application a principalement été testée sur un appareil physique API 23 (un téléphone One Plus 3). Elle devrait normalement tourner sur des API 17 au plus bas.
 Pour que cette application ait de l'intérêt il faut que l'utilisateur possède des musiques sur son téléphone et qu'il donne les droits d'accès à l'application
