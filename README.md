@@ -3,11 +3,12 @@ Il s'agit d'une application permettant de lire de la musique
 
 
 # Fonctionnalités
-- Lire de la musique
+- Un service permettant de lire de la musique
 - Couper la musique lorsque l'application perd le focus du son
 - Afficher les musiques / albums dans un recyclerView
+- Momorisation des listes de lecture (et bien d'autre) à l'aide de fragment et de parcel
 - Notification permattant de changer l'état de la chanson jouer
-- Une popup affichant trois options : Trouver la pochette de l'album correspondant et la télécharger (via l'API Spotify), Editer la pochetter avec une photo présente sur l'appareil, Modifier les informations de la chanson voulue
+- Une popup affichant trois options : Trouver la pochette de l'album correspondant et la télécharger (via l'API Spotify), Editer la pochette avec une photo présente sur l'appareil, Modifier les informations de la chanson voulue. Ces options ne modifies pas les metadonnées en elles-mêmes, les changements disparaîteront à la fermeture de l'applicaion.
 
 ![alt tag](https://raw.githubusercontent.com/ChrisMichelGit/INF4042_michel_depaillat/master/Illustration.png)
 
