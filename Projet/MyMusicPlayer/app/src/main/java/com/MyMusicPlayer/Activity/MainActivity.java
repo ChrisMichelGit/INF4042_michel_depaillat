@@ -827,6 +827,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                     for (int i = numThread * threadId * 50; i < numThread * threadId * 50 + coverByThread; i++)
                     {
                         //Log.i(TAG, "Thread n°" + threadId + " id: " + i);
+
+                        if (i >= songList.size()) break;
                         songList.get(i).initBitmap();
                     }
                 }
@@ -842,6 +844,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 for (int i = numThread * currThreadId * 50; i < numThread * currThreadId * 50 + lastThread; i++)
                 {
                     //Log.i(TAG, "Thread n°" + currThreadId + " id: " + i);
+                    if (i >= songList.size()) break;
                     songList.get(i).initBitmap();
                 }
             }
